@@ -13,6 +13,58 @@ const admin = require('firebase-admin');
 admin.initializeApp();
 
 
+
+
+exports.darChatsUsuario = functions.https.onCall((data) => {
+
+
+  return new Promise((resolve, reject)=>{
+
+  let db = admin.firestore();
+
+  let users = []
+
+  let username = data.username;
+
+  db.collection('usuarios').get().then(snapshot=>{
+        
+        users = snapshot.docs.map(doc=>{
+
+            return doc.data();
+        })
+
+        let result = [];      
+
+        result = users.filter(user => {
+
+            return user.username == username;
+        })
+
+        let total = result[0].chats[0]._path.segments[1];
+
+        var docRef = db.collection("chats").doc(total);
+
+    docRef.get().then(function(doc) {
+    if (doc.exists) {
+
+        resolve(doc)
+
+    } else {
+
+        console.log("No such document!");
+    }
+})
+
+    }).catch(error=>{
+        reject(error)
+    })
+  })// Grab the text parameter.
+
+  
+ 
+});
+
+
 // Take the text parameter passed to this HTTP endpoint and insert it into the
 // Realtime Database under the path /messages/:pushId/original
 exports.addMessage = functions.https.onCall((data) => {
@@ -36,13 +88,8 @@ db.collection('usuarios').get().then(snapshot=>{
         let result = []       
         result = users.filter(user=>{
 
-            console.log(haversianDistance(location, user.location));
-
             return haversianDistance(location, user.location) <= range;
         })
-
-
-
 
         resolve(result)
 
