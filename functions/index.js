@@ -40,22 +40,22 @@ exports.darChatsUsuario = functions.https.onCall((data) => {
             return user.username == username;
         })
 
-        let total = result[0].chats[0]._path.segments[1];
+        let total = result[0].chats;
 
-        var docRef = db.collection("chats").doc(total);
+        let array = [];
 
-    docRef.get().then(function(doc) {
-    if (doc.exists) {
+        for (var i = 0; i < total.length; i++) {
+            
+            array.push(total[i]._path.segments[1]);
+        }
 
-        resolve(doc)
+        resolve(array);
 
-    } else {
 
-        console.log("No such document!");
-    }
-})
+
 
     }).catch(error=>{
+
         reject(error)
     })
   })// Grab the text parameter.
